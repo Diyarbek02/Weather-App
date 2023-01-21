@@ -1,0 +1,55 @@
+package com.karsoft.weatherappcourse.fragments
+
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
+import com.karsoft.weatherappcourse.MainViewModel
+import com.karsoft.weatherappcourse.R
+import com.karsoft.weatherappcourse.adapters.WeatherAdapter
+import com.karsoft.weatherappcourse.adapters.WeatherModel
+import com.karsoft.weatherappcourse.databinding.FragmentDaysBinding
+
+class DaysFragment : Fragment(), WeatherAdapter.Listener {
+
+    private lateinit var adapter: WeatherAdapter
+    private lateinit var binding: FragmentDaysBinding
+    private val model : MainViewModel by activityViewModels()
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentDaysBinding.inflate(inflater,  container, false)
+        // Inflate the layout for this fragment
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        init()
+        model.liveDataList.observe(viewLifecycleOwner) {
+            adapter.submitList(it.subList(1,it.size))
+        }
+    }
+
+    private fun init() = with(binding) {
+        adapter = WeatherAdapter(this@DaysFragment)
+        rcView.layoutManager = LinearLayoutManager(activity)
+        rcView.adapter = adapter
+    }
+
+    companion object {
+
+        @JvmStatic
+        fun newInstance() = DaysFragment()
+    }
+
+    override fun onClick(item: WeatherModel) {
+        model.liveDataCurrent.value = item
+    }
+}
